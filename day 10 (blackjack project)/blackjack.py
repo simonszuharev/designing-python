@@ -101,6 +101,12 @@ def draw_or_stand_check(user_cards, computer_cards):
         elif draw_or_stand.lower() == "s":
             print("Which means, your sum is ", get_sum(user_cards), ".")
             get_winner(user_cards, computer_cards)
+            if get_sum(user_cards) == get_sum(computer_cards):
+                user_cards_even = {}
+                computer_cards_even = {}
+                draw_the_card(user_cards_even)
+                draw_the_card(computer_cards_even)
+                get_winner(user_cards_even, computer_cards_even)
             draw = False
             return True
 
