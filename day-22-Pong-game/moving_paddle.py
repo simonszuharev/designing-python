@@ -51,3 +51,9 @@ class Paddle:
 
     def down(self):
         self.__down_move(self.x_cor)
+
+    def ball_touch(self, ball):
+        for element in self.paddle:
+            if ball.distance(element) < 20:
+                ball.bounce_back()
+                return True
