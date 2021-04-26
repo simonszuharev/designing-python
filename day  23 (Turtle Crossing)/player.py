@@ -1,41 +1,42 @@
-import turtle
-from turtle import Turtle
+import random
+import time
+from turtle import Screen
+from player import Player
+from car_manager import CarManager
+from scoreboard import ScoreBoard
 
-STARTING_POSITION = (0, -280)
-MOVE_DISTANCE = 10
-FINISH_LINE_Y = 280
+screen = Screen()
+scoreboard = ScoreBoard()
+screen.setup(width=600, height=600)
+screen.bgcolor("spring green")
+screen.title("Turtle Crossing")
+screen.tracer(0)
 
+player = Player()
+cars = CarManager()
 
-class Player(Turtle):
+screen.listen()
+screen.onkey(player.move, "Up")
 
-    def __init__(self):
-        super().__init__()
-        self.create()
+game_over = False
 
-    def __create_the_turtle(self):
-        self.shape("turtle")
-        self.color("black")
-        self.penup()
-        self.go_to_start()
-        self.setheading(90)
+while not game_over:
+    time.sleep(0.1)
+    screen.update()
 
-    def __move(self):
-        self.forward(MOVE_DISTANCE)
+    cars.create()
+    cars.move()
 
-    def __go_to_start_now(self):
-        self.goto(STARTING_POSITION)
+    # detect collision
+    for car in cars.all_cars:
+        if car.distance(player) < 20:
+            scoreboard.game_over()
+            game_over = True
 
-    def go_to_start(self):
-        self.__go_to_start_now()
+    # detect if finished
+    if player.finished():
+        player.go_to_start()
+        cars.level_up()
+        scoreboard.add()
 
-    def create(self):
-        self.__create_the_turtle()
-
-    def move(self):
-        self.__move()
-
-    def finished(self):
-        if self.ycor() > FINISH_LINE_Y:
-            return True
-        else:
-            return False
+screen.exitonclick()
