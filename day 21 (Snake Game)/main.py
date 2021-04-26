@@ -41,15 +41,16 @@ while not game_over:
 
 
     #GameOver
-    if snake.head.xcor() < -280 or snake.head.xcor() > 280 or snake.head.ycor() < -280 or snake.head.xcor() > 280:
-        game_over = True
-        scoreboard.game_over()
+    if snake.head.xcor() < -290 or snake.head.xcor() > 290 or snake.head.ycor() < -290 or snake.head.xcor() > 290:
+        scoreboard.reset()
+        snake.reset()
+        #scoreboard.game_over()
 
     #Detect collision
     for element in snake.list_snake[1:]:
         if snake.head.distance(element) < 10:
-            game_over = True
-            scoreboard.game_over()
+            scoreboard.reset()
+            snake.reset()
 
 
 screen.exitonclick()
