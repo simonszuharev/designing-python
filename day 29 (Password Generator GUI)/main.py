@@ -1,8 +1,10 @@
-import time
 from tkinter import *
 from tkinter import messagebox
 import random
 import csv
+import os.path
+
+import pandas
 import pyperclip
 
 FONT_NAME = "Times New Roman"
@@ -37,18 +39,53 @@ def generate_password():
 
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
+def search():
+    with open('passwords.csv', 'a+', newline='') as csvfile:
+        csvfile.seek(0)  # sets the reader to the first row
+        csvreader = csv.DictReader(csvfile)
+        found = False
+        for row in csvreader:
+            if website_entry.get() in row['website']:
+                messagebox.showinfo(title=row['website'], message=f"This data already exists\n"
+                                                                  f"Email/username: {row['email/username']}\n"
+                                                                  f"Password: {row['password']}\n"
+                                                                  f"Password has been copied to the clipboard")
+                pyperclip.copy(row['password'])
+                found = True
+        if not found:
+            messagebox.showinfo(message="Not Found")
+
+
 def add():
     data = {"website": website_entry.get(), "email/username": email_entry.get(), "password": password_entry.get()}
     if len(website_entry.get()) == 0 or len(password_entry.get()) == 0:
         messagebox.showinfo(title="Error", message="Please, make sure to fill out all fields.")
     else:
-        is_okay = messagebox.askokcancel(title=website_entry.get(),
-                                         message=f"The details entered are: \n Website: {website_entry.get()} \n Email/Username"
-                                                 f"{email_entry.get()} \n Password: {password_entry.get()} \n Is it okay to save?")
+        with open('passwords.csv', 'a+', newline='') as csvfile:
+            csvfile.seek(0)  # sets the reader to the first row
+            csvreader = csv.DictReader(csvfile)
+            lines = len(list(csvreader))
+            csvfile.seek(0)  # sets the reader to the first row for tracing
+            for row in csvreader:
+                if website_entry.get() in row['website']:
+                    messagebox.showinfo(title=row['website'], message=f"This data already exists\n"
+                                                                      f"Email/username: {row['email/username']}\n"
+                                                                      f"Password: {row['password']}\n"
+                                                                      f"Password has been copied to the clipboard")
+                    pyperclip.copy(row['password'])
+                    csvfile.close()
+                    website_entry.delete(0, END)
+                    password_entry.delete(0, END)
+                    return True  # to exit the function
 
-        if is_okay:
-            with open('passwords.csv', 'a+', newline='') as csvfile:
-                csvwriter = csv.DictWriter(csvfile, fieldnames=FIELD_NAMES)
+            csvwriter = csv.DictWriter(csvfile, fieldnames=FIELD_NAMES)
+            if lines == 0:
+                csvwriter.writeheader()
+                csvwriter.writerow(data)
+                csvfile.close()
+                website_entry.delete(0, END)
+                password_entry.delete(0, END)
+            else:
                 csvwriter.writerow(data)
                 csvfile.close()
                 website_entry.delete(0, END)
@@ -72,9 +109,9 @@ canvas.grid(column=1, row=0)
 
 website_label = Label(text="Website:", fg="black", bg="white", font=(FONT_NAME, 15, "bold"))
 website_label.grid(column=0, row=1)
-website_entry = Entry(width=35)
+website_entry = Entry(width=21)
 website_entry.focus()
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry.grid(column=1, row=1)
 
 # Email/Username
 
@@ -98,7 +135,11 @@ add_button.grid(column=1, row=4, columnspan=2)
 
 # Button Generate
 
-checkbutton = Button(text="Generate Password", command=generate_password)
-checkbutton.grid(column=2, row=3)
+generate_button = Button(text="Generate Password", command=generate_password)
+generate_button.grid(column=2, row=3)
+
+# Button search
+search_button = Button(text="Search", width=13, command=search)
+search_button.grid(column=2, row=1)
 
 window.mainloop()
